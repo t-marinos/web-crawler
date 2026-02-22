@@ -26,11 +26,12 @@ from src.utils.robot import RobotRules
 logger = logging.getLogger(__name__)
 
 
-async def crawl() -> dict:
+async def crawl(config: CrawlerConfig | None = None) -> dict:
     """Run the full crawl pipeline and return the results dictionary."""
 
     # 1. Load configuration
-    config = CrawlerConfig.from_yaml()
+    if config is None:
+        config = CrawlerConfig.from_yaml()
 
     logging.basicConfig(
         level=getattr(logging, config.log_level, logging.INFO),
