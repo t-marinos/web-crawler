@@ -1,4 +1,4 @@
-"""Tests for the Parser class – specifically subdomain filtering and link extraction."""
+"""Tests for the Parser class"""
 
 import asyncio
 

@@ -1,4 +1,4 @@
-"""Tests for the Fetcher worker – error handling and retry logic."""
+"""Tests for the Fetcher worker"""
 
 import asyncio
 import time
@@ -14,6 +14,7 @@ from src.utils.robot import RobotRules
 
 
 def _make_fetcher() -> tuple[Fetcher, Frontier, asyncio.Queue]:
+    """Helper to create a Fetcher with a valid config."""
     config = CrawlerConfig(start_url="https://example.com", rate_limit=0.0, max_retries=3, num_fetchers=1)
     frontier = Frontier()
     parse_queue: asyncio.Queue[ParseItem] = asyncio.Queue()
@@ -110,11 +111,11 @@ async def test_max_retries_drops():
     """After max_retries, the URL should be dropped permanently."""
     fetcher, frontier, parse_queue = _make_fetcher()
 
-    # Simulate a URL that has already been retried max_retries - 1 times.
+    # Simulate a URL that has already been retried max_retries
     item = FrontierItem(
         scheduled_at=time.time(),
         url="https://example.com/flaky",
-        retry_count=2,  # next failure = attempt 3 = max_retries → drop
+        retry_count=2,  # next failure = attempt 3 = max_retries so we drop it
     )
     await frontier.push(item)
 

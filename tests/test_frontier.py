@@ -32,7 +32,7 @@ async def test_push_retry_bypasses_dedup():
     frontier = Frontier()
     original = FrontierItem.new("https://example.com/a")
     await frontier.push(original)
-    _ = await frontier.pop()
+    await frontier.pop()
 
     retry = FrontierItem(
         scheduled_at=time.time(), url="https://example.com/a", retry_count=1
