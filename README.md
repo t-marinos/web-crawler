@@ -1,6 +1,6 @@
 # Web Crawler
 
-An asynchronous, single-subdomain web crawler built in Python. Given a starting URL, it visits every page on the same subdomain, prints each visited URL with its discovered links, and produces a final results dictionary.
+An asynchronous, single-subdomain web crawler built in Python. Given a starting URL, it visits every page on the same subdomain, prints each visited URL with its discovered links, and produces a final results dictionary with all the links found on each page.
 
 ## Architecture
 
