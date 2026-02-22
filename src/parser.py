@@ -69,7 +69,7 @@ class Parser:
             item.url, len(links), links_str,
         )
 
-        # Push same-domain links to the frontier.
+        # Push same domain links to the frontier.
         for link in links:
             if self.is_same_domain(link):
                 await self._frontier.push(FrontierItem.new(link))
@@ -84,12 +84,8 @@ class Parser:
             raw_href: str = anchor["href"]
             absolute = urljoin(base_url, raw_href)
 
-            # Skip non-HTTP schemes (mailto:, tel:, javascript:, etc.)
-            parsed = urlparse(absolute)
-            if parsed.scheme not in ("http", "https"):
-                continue
-
             # Strip fragments.
+            parsed = urlparse(absolute)
             clean = parsed._replace(fragment="").geturl()
 
             if clean not in seen:
