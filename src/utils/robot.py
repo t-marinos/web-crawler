@@ -19,7 +19,7 @@ USER_AGENT = "MonzoCrawler/1.0"
 
 
 class RobotRules:
-    """Thin async wrapper around :class:`urllib.robotparser.RobotFileParser`."""
+    """Uses `urllib.robotparser.RobotFileParser` to check crawl permissions."""
 
     def __init__(self) -> None:
         self._parser = RobotFileParser()
@@ -40,14 +40,14 @@ class RobotRules:
                         # If robots.txt is missing or returns non-200,
                         # assume everything is allowed.
                         logger.warning(
-                            "robots.txt returned status %s – allowing all paths",
+                            "robots.txt returned status %s so we are allowing all paths",
                             resp.status,
                         )
                         error_text = await resp.text()
                         logger.warning("robots.txt: %s", error_text)
                         self._parser.allow_all = True
         except Exception:
-            logger.warning("Failed to fetch robots.txt – allowing all paths", exc_info=True)
+            logger.warning("Failed to fetch robots.txt so we are allowing all paths", exc_info=True)
             self._parser.allow_all = True
 
         self._loaded = True
