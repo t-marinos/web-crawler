@@ -14,7 +14,7 @@ from src.utils.robot import RobotRules
 
 
 def _make_fetcher() -> tuple[Fetcher, Frontier, asyncio.Queue]:
-    config = CrawlerConfig(start_url="https://example.com", rate_limit=0.0, max_retries=3)
+    config = CrawlerConfig(start_url="https://example.com", rate_limit=0.0, max_retries=3, num_fetchers=1)
     frontier = Frontier()
     parse_queue: asyncio.Queue[ParseItem] = asyncio.Queue()
     robot_rules = RobotRules()
