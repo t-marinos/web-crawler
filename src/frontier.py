@@ -1,7 +1,7 @@
-"""Frontier – manages the URL queue and the 'seen' set.
+"""Frontier class manages the URL queue and the 'seen' set.
 
 The frontier wraps an ``asyncio.PriorityQueue`` so that retry items
-whose ``scheduled_at`` timestamp hasn't arrived yet are deferred
+whose ``scheduled_at`` timestamp hasn't arrived yet are delayed
 rather than blocking the event loop.
 """
 
@@ -15,21 +15,17 @@ from src.models import FrontierItem
 
 
 class Frontier:
-    """Thread-safe (async) frontier backed by a priority queue."""
+    """Frontier class that manages the priority queue and the 'seen' set."""
 
     def __init__(self) -> None:
         self._queue: asyncio.PriorityQueue[FrontierItem] = asyncio.PriorityQueue()
         self._seen: Set[str] = set()
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
-
     async def push(self, item: FrontierItem) -> None:
         """Add *item* to the frontier if this URL hasn't been seen yet.
 
         For retries the URL is already in ``_seen``, so we skip the
-        dedup check and push unconditionally.
+        seen check and push unconditionally.
         """
         if item.retry_count == 0:
             if item.url in self._seen:
