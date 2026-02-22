@@ -23,10 +23,6 @@ from src.models import FrontierItem, ParseItem
 from src.parser import Parser
 from src.utils.robot import RobotRules
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 
@@ -35,6 +31,12 @@ async def crawl() -> dict:
 
     # 1. Load configuration
     config = CrawlerConfig.from_yaml()
+
+    logging.basicConfig(
+        level=getattr(logging, config.log_level, logging.INFO),
+        format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
+    )
+
     logger.info("Starting crawl from %s", config.start_url)
 
     allowed_domain = urlparse(config.start_url).netloc

@@ -21,6 +21,7 @@ class CrawlerConfig:
     rate_limit: float
     max_retries: int
     num_fetchers: int
+    log_level: str
 
     @classmethod
     def from_yaml(cls, path: pathlib.Path = CONFIG_PATH) -> CrawlerConfig:
@@ -33,4 +34,5 @@ class CrawlerConfig:
             rate_limit=float(raw["rate_limit"]),
             max_retries=int(raw["max_retries"]),
             num_fetchers=int(raw.get("num_fetchers", 1)),
+            log_level=raw.get("log_level", "INFO").upper(),
         )
