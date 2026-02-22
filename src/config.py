@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 import yaml
 
-_CONFIG_PATH = pathlib.Path(__file__).resolve().parent.parent / "config.yml"
+CONFIG_PATH = pathlib.Path(__file__).resolve().parent.parent / "config.yml"
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class CrawlerConfig:
     num_fetchers: int
 
     @classmethod
-    def from_yaml(cls, path: pathlib.Path = _CONFIG_PATH) -> CrawlerConfig:
+    def from_yaml(cls, path: pathlib.Path = CONFIG_PATH) -> CrawlerConfig:
         """Load configuration from a YAML file."""
         with open(path, "r") as fh:
             raw = yaml.safe_load(fh)
