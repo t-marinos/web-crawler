@@ -18,13 +18,13 @@ class CrawlerConfig:
     """Immutable configuration for the crawler."""
 
     start_url: str
-    rate_limit: float  # minimum seconds between requests
+    rate_limit: float
     max_retries: int
     num_fetchers: int
 
     @classmethod
     def from_yaml(cls, path: pathlib.Path = CONFIG_PATH) -> CrawlerConfig:
-        """Load configuration from a YAML file."""
+        """Load configuration from config.yml."""
         with open(path, "r") as fh:
             raw = yaml.safe_load(fh)
 
