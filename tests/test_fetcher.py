@@ -15,13 +15,14 @@ from src.utils.robot import RobotRules
 
 def _make_fetcher() -> tuple[Fetcher, Frontier, asyncio.Queue]:
     """Helper to create a Fetcher with a valid config."""
-    config = CrawlerConfig(start_url="https://example.com", rate_limit=0.0, max_retries=3, num_fetchers=1, log_level="INFO")
+    config = CrawlerConfig(start_url="https://example.com", rate_limit=0.0, max_retries=3, num_fetchers=1, max_concurrent=1, log_level="INFO")
     frontier = Frontier()
     parse_queue: asyncio.Queue[ParseItem] = asyncio.Queue()
     robot_rules = RobotRules()
     robot_rules._loaded = True
     robot_rules._parser.allow_all = True
-    fetcher = Fetcher(config, frontier, parse_queue, robot_rules)
+    semaphore = asyncio.Semaphore(1)
+    fetcher = Fetcher(config, frontier, parse_queue, robot_rules, semaphore)
     return fetcher, frontier, parse_queue
 
 
@@ -42,7 +43,7 @@ async def test_404_is_dropped():
     mock_session.get = MagicMock(return_value=mock_resp)
 
     popped = await frontier.pop()
-    await fetcher._process(mock_session, popped)
+    await fetcher.process(mock_session, popped)
 
     assert "https://example.com/missing" in fetcher.dropped
     assert parse_queue.empty()
@@ -66,7 +67,7 @@ async def test_successful_fetch_pushes_to_parse_queue():
     mock_session.get = MagicMock(return_value=mock_resp)
 
     popped = await frontier.pop()
-    await fetcher._process(mock_session, popped)
+    await fetcher.process(mock_session, popped)
 
     assert not parse_queue.empty()
     result = await parse_queue.get()
@@ -93,7 +94,7 @@ async def test_server_error_retries():
     mock_session.get = MagicMock(return_value=mock_resp)
 
     popped = await frontier.pop()
-    await fetcher._process(mock_session, popped)
+    await fetcher.process(mock_session, popped)
 
     # URL should NOT be dropped yet (only 1st attempt)
     assert "https://example.com/error" not in fetcher.dropped
@@ -121,7 +122,7 @@ async def test_max_retries_drops():
 
     exc = Exception("connection timeout")
     popped = await frontier.pop()
-    await fetcher._handle_failure(popped, exc)
+    await fetcher.handle_failure(popped, exc)
 
     assert "https://example.com/flaky" in fetcher.dropped
     assert frontier.empty

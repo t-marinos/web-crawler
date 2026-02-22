@@ -31,7 +31,7 @@ async def test_extract_links():
     parse_queue: asyncio.Queue[ParseItem] = asyncio.Queue()
     parser = Parser(ALLOWED_DOMAIN, frontier, parse_queue)
 
-    links = parser._extract_links("https://crawlme.monzo.com/", SAMPLE_HTML)
+    links = parser.extract_links("https://crawlme.monzo.com/", SAMPLE_HTML)
 
     assert "https://crawlme.monzo.com/about" in links
     assert "https://crawlme.monzo.com/contact" in links
@@ -49,11 +49,11 @@ async def test_same_domain_filter():
     parse_queue: asyncio.Queue[ParseItem] = asyncio.Queue()
     parser = Parser(ALLOWED_DOMAIN, frontier, parse_queue)
 
-    assert parser._is_same_domain("https://crawlme.monzo.com/about") is True
-    assert parser._is_same_domain("https://crawlme.monzo.com/contact") is True
-    assert parser._is_same_domain("https://facebook.com/monzo") is False
-    assert parser._is_same_domain("https://monzo.com") is False
-    assert parser._is_same_domain("https://community.monzo.com") is False
+    assert parser.is_same_domain("https://crawlme.monzo.com/about") is True
+    assert parser.is_same_domain("https://crawlme.monzo.com/contact") is True
+    assert parser.is_same_domain("https://facebook.com/monzo") is False
+    assert parser.is_same_domain("https://monzo.com") is False
+    assert parser.is_same_domain("https://community.monzo.com") is False
 
 
 @pytest.mark.asyncio
@@ -64,7 +64,7 @@ async def test_parser_pushes_only_same_domain_links():
     parser = Parser(ALLOWED_DOMAIN, frontier, parse_queue)
 
     item = ParseItem(url="https://crawlme.monzo.com/", html=SAMPLE_HTML)
-    await parser._process(item)
+    await parser.process(item)
 
     # The frontier should now contain same-domain links only.
     queued_urls = set()

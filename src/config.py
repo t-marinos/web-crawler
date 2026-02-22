@@ -21,6 +21,7 @@ class CrawlerConfig:
     rate_limit: float
     max_retries: int
     num_fetchers: int
+    max_concurrent: int
     log_level: str
 
     @classmethod
@@ -29,10 +30,12 @@ class CrawlerConfig:
         with open(path, "r") as fh:
             raw = yaml.safe_load(fh)
 
+        num_fetchers = int(raw.get("num_fetchers", 1))
         return cls(
             start_url=raw["start_url"],
-            rate_limit=float(raw["rate_limit"]),
+            rate_limit=float(raw.get("rate_limit", 0)),
             max_retries=int(raw["max_retries"]),
-            num_fetchers=int(raw.get("num_fetchers", 1)),
+            num_fetchers=num_fetchers,
+            max_concurrent=int(raw.get("max_concurrent", num_fetchers)),
             log_level=raw.get("log_level", "INFO").upper(),
         )

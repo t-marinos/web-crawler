@@ -48,9 +48,10 @@ async def crawl() -> dict:
     # 3. Initialise queues & workers
     frontier = Frontier()
     parse_queue: asyncio.Queue[ParseItem] = asyncio.Queue()
+    semaphore = asyncio.Semaphore(config.max_concurrent)
 
     fetchers = [
-        Fetcher(config, frontier, parse_queue, robot_rules)
+        Fetcher(config, frontier, parse_queue, robot_rules, semaphore)
         for _ in range(config.num_fetchers)
     ]
     parser = Parser(allowed_domain, frontier, parse_queue)
