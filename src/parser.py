@@ -1,11 +1,11 @@
-"""Parser worker – extracts links from fetched HTML.
+"""Parser worker that extracts links from fetched HTML.
 
-Responsibilities:
+Responsibilities of the parser worker:
 * Pull items from the parsing queue.
 * Extract all ``<a href="…">`` links using BeautifulSoup.
 * Normalise and filter URLs to the same subdomain.
-* Print the visited URL and its discovered links.
-* Push unseen same-domain links onto the frontier.
+* Logs the visited URL and its discovered links.
+* Push unseen same domain links onto the frontier.
 * Populate the ``urls_found`` results dictionary.
 """
 
@@ -37,12 +37,8 @@ class Parser:
         self._frontier = frontier
         self._parse_queue = parse_queue
 
-        # url → list of all links found on that page (including external).
+        # url is mapped to a list of all links found on that page (including external).
         self.urls_found: Dict[str, List[str]] = {}
-
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
 
     async def run(self) -> None:
         """Consume items from the parsing queue until idle."""
@@ -52,14 +48,10 @@ class Parser:
             except asyncio.TimeoutError:
                 break
 
-            await self._process(item)
+            await self.process(item)
             self._parse_queue.task_done()
 
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
-
-    async def _process(self, item: ParseItem) -> None:
+    async def process(self, item: ParseItem) -> None:
         logger.info(
             "Parser  | frontier_queue=%d  parse_queue=%d  | parsing %s",
             self._frontier.qsize,
@@ -67,22 +59,22 @@ class Parser:
             item.url,
         )
 
-        links = self._extract_links(item.url, item.html)
+        links = self.extract_links(item.url, item.html)
         self.urls_found[item.url] = links
 
-        # Pretty-print output.
-        print(f"\n{'='*60}")
-        print(f"Visited: {item.url}")
-        print(f"Links found ({len(links)}):")
-        for link in links:
-            print(f"  → {link}")
+        # Log output.
+        links_str = "\n".join(f"   {link}" for link in links)
+        logger.info(
+            "Visited: %s\nLinks found (%d):\n%s",
+            item.url, len(links), links_str,
+        )
 
         # Push same-domain links to the frontier.
         for link in links:
-            if self._is_same_domain(link):
+            if self.is_same_domain(link):
                 await self._frontier.push(FrontierItem.new(link))
 
-    def _extract_links(self, base_url: str, html: str) -> List[str]:
+    def extract_links(self, base_url: str, html: str) -> List[str]:
         """Return a deduplicated list of absolute URLs found in *html*."""
         soup = BeautifulSoup(html, "html.parser")
         seen: Set[str] = set()
@@ -106,7 +98,7 @@ class Parser:
 
         return links
 
-    def _is_same_domain(self, url: str) -> bool:
+    def is_same_domain(self, url: str) -> bool:
         """Return *True* if *url* belongs to the allowed subdomain."""
         parsed = urlparse(url)
         return parsed.netloc == self._allowed_domain
