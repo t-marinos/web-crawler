@@ -1,6 +1,5 @@
 """Tests for the Frontier class."""
 
-import asyncio
 import time
 
 import pytest

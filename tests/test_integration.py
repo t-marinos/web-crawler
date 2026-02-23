@@ -1,6 +1,5 @@
 """Integration test — spins up a local HTTP server and runs the full crawl pipeline."""
 
-import asyncio
 import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 

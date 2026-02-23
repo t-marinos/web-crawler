@@ -1,5 +1,5 @@
 start_url: "https://crawlme.monzo.com/"
-rate_limit: 0  # seconds between requests (0 = no delay)
+rate_limit: 0  # seconds between requests per fetcher worker (0 = no delay)
 max_retries: 3   # number of retries before dropping a URL
 num_fetchers: 30  # number of fetcher workers
 max_concurrent: 30 # max simultaneous requests (semaphore)
